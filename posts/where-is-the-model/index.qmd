@@ -1,6 +1,6 @@
 ---
 title: "Where Is the Model in the Name?"
-description: "A study of position embeddings in a character-level Bengio MLP, and what they actually buy you."
+description: A study of position embeddings in a character-level Bengio MLP — what they actually buy you, and how the gap collapses as context grows."
 date: 2026-05-23
 categories: [machine-learning, experiments, language-models]
 image: assets/phase3_context_sweep.png
