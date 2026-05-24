@@ -3,7 +3,7 @@ title: "Where Is the Model in the Name?"
 description: "A study of position embeddings in a character-level Bengio MLP, and what they actually buy you."
 date: 2026-05-23
 categories: [machine-learning, experiments, language-models]
-image: assets/phase3-context-sweep.png
+image: assets/phase3_context_sweep.png
 ---
 
 Working through Karpathy's makemore series, I built a Bengio-style MLP for character-level name generation and noticed something simple. The model takes a window of characters and predicts the next one. A window like `"ari"` is the ending of "Mari" — the model should output a period. But it's also the middle of "Maria" (output `"a"`), "Marina" (`"n"`), and "Maribel" (`"b"`). The window is identical; the targets aren't. The model has no way to know which name it's in.
@@ -28,7 +28,7 @@ The shape of the forward pass:
 
 with vocab size `V = 27` (26 letters plus the end-of-name marker `.`). Names are padded on the left with dots, so the very first character of every name sees a window of pure dots.
 
-![The Bengio MLP. Each character index gets turned into a learned vector by the embedding table; the vectors are stitched together and passed through the hidden layer; the output is a probability for each possible next character, and we sample from those probabilities to pick one.](assets/bengio-mlp-architecture.png)
+![The Bengio MLP. Each character index gets turned into a learned vector by the embedding table; the vectors are stitched together and passed through the hidden layer; the output is a probability for each possible next character, and we sample from those probabilities to pick one.](assets/bengio-mlp.gif)
 
 What the model can see is the immediately preceding `C` characters. What it can't see is where it is within the name. A 4-character window of `"...."` and a 4-character window of `"phie"` look like completely different inputs, but once the window fills with real letters, the dot-padding signal that originally encoded position is gone. The model has no way to recover *how far into this name am I?* from its inputs alone — and the architecture as built gives it no other channel.
 
@@ -57,7 +57,7 @@ class MLP_PE(nn.Module):
 
 `pos` is the within-name index — 0 for the first prediction in a name, incrementing by one per step. A few hundred extra parameters in the pos-emb table; the first Linear gets a slightly wider input. Architecturally, nothing else changes.
 
-![The variant. Same architecture, with one branch added: the current position within the name gets its own embedding table and joins the concatenation. The hidden layer and output are unchanged.](assets/mlp-pe-architecture.png)
+![The variant. Same architecture, with one branch added: the current position within the name gets its own embedding table and joins the concatenation. The hidden layer and output are unchanged.](assets/mlp-pe.gif)
 
 The thing I didn't realize at first is that this small change bundles two separate claims into one architectural decision. Once I started running experiments, those two claims turned out to be testable individually — which is how the rest of this post is organized.
 
@@ -81,7 +81,7 @@ Four choices shape the comparisons below.
 
 **Held-out test set, evaluated once per condition.** 80/10/10 train/val/test split. HPs chosen on val; every reported number is on test.
 
-Full configs and JSONL logs are in the [project repo](https://github.com/your-username/position-embeddings-bengio-mlp).
+Full configs and JSONL logs are in the [project repo](https://github.com/offei-op/position-embeddings-bengio-mlp).
 
 ## Experiments
 
@@ -89,7 +89,7 @@ Full configs and JSONL logs are in the [project repo](https://github.com/your-us
 
 Best-vs-best, with one control: the width-matched MLP from the methodology section. Five seeds, test set.
 
-![Test perplexity at independently-tuned best, with a width-matched control on the right (5 seeds; error bars ±1 std). MLP+PE wins regardless of how the comparison is framed.](assets/phase2-bar-chart.png)
+![Test perplexity at independently-tuned best, with a width-matched control on the right (5 seeds; error bars ±1 std). MLP+PE wins regardless of how the comparison is framed.](assets/phase2_final_comparison.png.png)
 
 | Condition | Test perplexity | Params |
 |---|---|---|
@@ -111,7 +111,7 @@ What this doesn't rule out: maybe MLP+PE wins because it has ~25K more total par
 
 Phase 2 left one objection open: maybe MLP+PE wins because it has ~25K more parameters total. To close that, I matched total parameter count at every scale. For each MLP+PE width (hidden_dim ∈ {64, 128, 256, 512, 1024}), I solved analytically for the MLP hidden_dim that gives the same total parameter count, then trained both at three seeds.
 
-![Param-matched scale sweep at context_length=4 (3 seeds; bands ±1 std). MLP+PE wins at every scale tested. The U-shape past ~5×10⁴ parameters is the data ceiling — 32K names isn't enough to keep filling larger models.](assets/phase4-scale-curve.png)
+![Param-matched scale sweep at context_length=4 (3 seeds; bands ±1 std). MLP+PE wins at every scale tested. The U-shape past ~5×10⁴ parameters is the data ceiling — 32K names isn't enough to keep filling larger models.](assets/phase4_width_sweep.png.png)
 
 Three observations.
 
@@ -127,7 +127,7 @@ The prediction from earlier was concrete: the pos-emb advantage should be larges
 
 To test it, I held each model's Phase 1 best hyperparameters fixed, swept the context length over {2, 4, 6, 8, 12}, and ran five seeds at each setting.
 
-![Test perplexity vs context length (5 seeds; bands ±1 std). The 1.21-perplexity gap at ctx=2 collapses by ctx=6, exactly when the dot-padding pattern at the window's start becomes visible to the model.](assets/phase3-context-sweep.png)
+![Test perplexity vs context length (5 seeds; bands ±1 std). The 1.21-perplexity gap at ctx=2 collapses by ctx=6, exactly when the dot-padding pattern at the window's start becomes visible to the model.](assets/phase3_context_sweep.png)
 
 | Context | MLP | MLP+PE | Gap |
 |---|---|---|---|
