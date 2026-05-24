@@ -8,7 +8,7 @@
 <title>ofeibekoe-site</title>
 <link>https://Offei-op.github.io/ofeibekoe-site/posts/where-is-the-model/</link>
 <atom:link href="https://Offei-op.github.io/ofeibekoe-site/posts/where-is-the-model/index.xml" rel="self" type="application/rss+xml"/>
-<description>A study of position embeddings in a character-level Bengio MLP, and what they actually buy you.</description>
+<description>A study of position embeddings in a character-level Bengio MLP — what they actually buy you, and how the gap collapses as context grows.&quot;</description>
 <image>
 <url>https://Offei-op.github.io/ofeibekoe-site/assets/phase3_context_sweep.png</url>
 <title>ofeibekoe-site</title>
@@ -17,6 +17,6 @@
 <width>144</width>
 </image>
 <generator>quarto-1.9.37</generator>
-<lastBuildDate>Sun, 24 May 2026 00:44:52 GMT</lastBuildDate>
+<lastBuildDate>Sun, 24 May 2026 00:47:18 GMT</lastBuildDate>
 </channel>
 </rss>
