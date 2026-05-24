@@ -4,5 +4,11 @@
   },
   "index.qmd": {
     "index.html": "09bf8b45"
+  },
+  "posts/where-is-the-model/index.qmd": {
+    "index.html": "9f32b1b5"
+  },
+  "posts/where-is-the-model/PosEmb.ipynb": {
+    "PosEmb.html": "c0d457df"
   }
 }
