@@ -8,6 +8,8 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
+  open-graph: true       # add this
+  twitter-card: true 
 
 format:
   html:
